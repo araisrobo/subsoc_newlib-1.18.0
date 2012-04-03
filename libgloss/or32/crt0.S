@@ -99,7 +99,7 @@ stack:	.space	4,0
         .type	_start,@function
 _start:
 	/* Initialise stack and frame pointer (set to same value) */
-	l.addi	r1,r0,0x3f00      # Set SP to value 0x7f00
+	l.addi	r1,r0,0x2000      # Set SP to value 0x7f00
 	l.addi	r2,r1,0x0         # FP and SP are the same
 
 	/* Clear BSS */
@@ -114,13 +114,9 @@ _start:
         l.addi  r28,r28,4	  /* Delay slot */
 
 	/* Call global and static constructors */
-	l.jal	init
+	l.jal	__init
 	l.nop
 	
-	/* Initialise UART in a C function. If the UART isn't present, we'll */
-	/* link against a dummy function. */
-	l.jal    _uart_init
-	l.nop
 
 	/* Jump to main program entry point (argc = argv = envp = 0) */
 	l.or	r3,r0,r0
@@ -128,10 +124,6 @@ _start:
 	l.jal   main
 	l.or	r5,r0,r0		/* Delay slot */
 	
-        /* If program exits, call exit routine */
-	l.jal   _exit
-	l.addi  r3,r11,0		/* Delay slot */
-
 	/* Loop forever */
 .L2:	l.j	.L2
 	l.nop
